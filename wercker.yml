@@ -1,0 +1,24 @@
+build:
+  box: golang:1.6
+  base-path: /go/src/github.com/mies/hello-mies
+  steps:
+    - script:
+        name: go vendor
+        code: |
+          echo "installing govendor"
+          go get -u github.com/kardianos/govendor
+          echo "Installing dependencies"
+          govendor sync
+
+    - script:
+        name: compile
+        code: |
+          CGO_ENABLED=0 go build \
+              -installsuffix cgo \
+              -ldflags="-X main.GitCommit=$WERCKER_GIT_COMMIT -X main.PatchVersion=$(( ($(date +%s) - $(date --date=20140611 +%s) )/(60*60*24) ))" \
+              -o $WERCKER_OUTPUT_DIR/hello-mies
+    
+    - internal/docker-push:
+        tag: $WERCKER_GIT_BRANCH-$WERCKER_GIT_COMMIT
+        entrypoint: /hello-world
+        ports: 6001
