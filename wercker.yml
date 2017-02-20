@@ -2,6 +2,10 @@ build:
   box: golang:1.6
   base-path: /go/src/github.com/mies/hello-mies
   steps:
+
+    - golint:
+        exclude: "^vendor|^core/trigger\\.pb\\.go|^core/trigger\\.pb\\.gw.go"
+
     - script:
         name: go vendor
         code: |
